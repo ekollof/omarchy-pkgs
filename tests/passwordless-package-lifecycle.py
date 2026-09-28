@@ -156,7 +156,7 @@ def run_suite(scriptlet, channel):
         # A directory in the reserved namespace makes rm -f fail safely.
         (root / "etc/sudoers.d/99-omarchy-nopasswd-blocked").mkdir()
         status, _ = run_callback(source, root, "pre_upgrade")
-        check("failed revocation refuses upgrade and retains blocker", (status != 0, (root / "etc/sudoers.d/99-omarchy-nopasswd-blocked").is_dir(), (root / "run/omarchy-sudo-passwordless-package-removing").exists()), (True, True, True))
+        check("failed revocation reports failure and retains blocker", (status != 0, (root / "etc/sudoers.d/99-omarchy-nopasswd-blocked").is_dir(), (root / "run/omarchy-sudo-passwordless-package-removing").exists()), (True, True, True))
         status, _ = run_callback(source, root, "post_upgrade")
         check("failed install cannot certify nonempty namespace", (status != 0, (root / "run/omarchy-sudo-passwordless-package-removing").exists()), (True, True))
         (root / "etc/sudoers.d/99-omarchy-nopasswd-blocked").rmdir()

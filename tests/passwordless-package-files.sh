@@ -36,6 +36,12 @@ fail() {
 hook=usr/share/libalpm/hooks/05-omarchy-passwordless-revoke.hook
 boot_cleanup=etc/tmpfiles.d/omarchy-nopasswd-sudo.conf
 
+# The scriptlets are what clear the hook's marker, and
+# passwordless-package-lifecycle.py only tests the file, not that it ships.
+registered=$(CARCH=x86_64 && source "$BUILD_ROOT/pkgbuilds/omarchy-settings-dev/PKGBUILD" && echo "${install:-}")
+[[ $registered == omarchy-settings-dev.install ]] ||
+  fail "omarchy-settings-dev does not register omarchy-settings-dev.install"
+
 for target_arch in x86_64 aarch64; do
   for recipe in omarchy-dev omarchy-settings-dev; do
     (
