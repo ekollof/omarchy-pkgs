@@ -22,10 +22,7 @@ conflicts=('omarchy')
 depends=(
   # Omarchy meta
   'omarchy-keyring'
-  # Same source as this runtime, and at least the first release that ships the
-  # sudo grant helpers: without them omarchy-update cannot source its library.
-  "omarchy-settings-dev=${pkgver}"
-  'omarchy-settings-dev>=4.0.0.r6663.g3faafba-3'
+  'omarchy-settings-dev'
 
   # Wayland / Hyprland core
   'hyprland'
