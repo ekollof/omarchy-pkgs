@@ -42,6 +42,13 @@ registered=$(CARCH=x86_64 && source "$BUILD_ROOT/pkgbuilds/omarchy-settings-dev/
 [[ $registered == omarchy-settings-dev.install ]] ||
   fail "omarchy-settings-dev does not register omarchy-settings-dev.install"
 
+# The runtime refuses the settings releases from before the helpers moved,
+# the last of which was -2, and accepts this one.
+floor=$(CARCH=x86_64 && source "$BUILD_ROOT/pkgbuilds/omarchy-dev/PKGBUILD" && printf '%s\n' "${conflicts[@]}" | sed -n 's/^omarchy-settings-dev<//p')
+settings=$(CARCH=x86_64 && source "$BUILD_ROOT/pkgbuilds/omarchy-settings-dev/PKGBUILD" && echo "$pkgver-$pkgrel")
+[[ -n $floor ]] && (($(vercmp 4.0.0.r6694.g821ae58-2 "$floor") < 0 && $(vercmp "$settings" "$floor") >= 0)) ||
+  fail "omarchy-dev does not refuse settings-dev releases without the grant helpers (conflict: '${floor}', settings: $settings)"
+
 for target_arch in x86_64 aarch64; do
   for recipe in omarchy-dev omarchy-settings-dev; do
     (
