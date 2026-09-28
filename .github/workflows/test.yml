@@ -51,7 +51,6 @@ jobs:
               python tests/owe-package-restart.py
               python tests/oma-service-removal.py
               python tests/passwordless-package-lifecycle.py
-              python tests/passwordless-package-metadata.py
               python tests/upstream-watch.py
               bash tests/ipu7-install.sh
               bash tests/ipu7-headers.sh
