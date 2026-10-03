@@ -16,9 +16,7 @@ arch=('x86_64' 'aarch64')
 url='https://github.com/basecamp/omarchy'
 license=('MIT')
 provides=('omarchy')
-# Settings releases before -3 lack the sudo grant helpers this runtime no
-# longer ships, and omarchy-update cannot start without their library.
-conflicts=('omarchy' 'omarchy-settings-dev<4.0.0.r6694.g821ae58-3')
+conflicts=('omarchy')
 # Hard depends: only packages whose removal would brick the desktop. The ISO
 # pacstraps the full default install set from install/omarchy-base.packages.
 depends=(
@@ -98,6 +96,11 @@ prepare() {
 }
 
 package() {
+  # omarchy-update cannot start without the library settings now ships. Set
+  # here, not above: makepkg checks only the top-level depends before
+  # building, against a repository that may not publish that settings yet.
+  depends+=('omarchy-security-functions')
+
   cd "$srcdir/omarchy"
 
   # Runtime binaries — ship everything in bin/ except the debug helpers
