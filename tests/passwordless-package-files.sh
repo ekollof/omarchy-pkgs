@@ -42,12 +42,12 @@ registered=$(CARCH=x86_64 && source "$BUILD_ROOT/pkgbuilds/omarchy-settings-dev/
 [[ $registered == omarchy-settings-dev.install ]] ||
   fail "omarchy-settings-dev does not register omarchy-settings-dev.install"
 
-# The runtime refuses the settings releases from before the helpers moved,
-# the last of which was -2, and accepts this one.
-floor=$(CARCH=x86_64 && source "$BUILD_ROOT/pkgbuilds/omarchy-dev/PKGBUILD" && printf '%s\n' "${conflicts[@]}" | sed -n 's/^omarchy-settings-dev<//p')
-settings=$(CARCH=x86_64 && source "$BUILD_ROOT/pkgbuilds/omarchy-settings-dev/PKGBUILD" && echo "$pkgver-$pkgrel")
-[[ -n $floor ]] && (($(vercmp 4.0.0.r6694.g821ae58-2 "$floor") < 0 && $(vercmp "$settings" "$floor") >= 0)) ||
-  fail "omarchy-dev does not refuse settings-dev releases without the grant helpers (conflict: '${floor}', settings: $settings)"
+# The runtime needs the library settings provides, but only once installed:
+# the per-package builds resolve the top-level depends against what the
+# repository already publishes.
+build_depends=$(CARCH=x86_64 && source "$BUILD_ROOT/pkgbuilds/omarchy-dev/PKGBUILD" && printf '%s\n' "${depends[@]}")
+! grep -Fxq omarchy-security-functions <<<"$build_depends" ||
+  fail "omarchy-dev asks for omarchy-security-functions before building, which a published settings-dev may not provide"
 
 for target_arch in x86_64 aarch64; do
   for recipe in omarchy-dev omarchy-settings-dev; do
@@ -58,6 +58,8 @@ for target_arch in x86_64 aarch64; do
       # shellcheck disable=SC1090 # Exercise each recipe's actual package function.
       source "$BUILD_ROOT/pkgbuilds/$recipe/PKGBUILD"
       package
+      printf '%s\n' "${depends[@]}" >"$scratch/$recipe-$target_arch.depends"
+      printf '%s\n' "${provides[@]}" >"$scratch/$recipe-$target_arch.provides"
     ) >/dev/null
   done
   runtime=$scratch/omarchy-dev-$target_arch
@@ -76,6 +78,10 @@ for target_arch in x86_64 aarch64; do
     fail "$target_arch: omarchy-settings-dev does not ship /$boot_cleanup"
   [[ -x $runtime/usr/bin/omarchy-update && -f $runtime/usr/share/libalpm/hooks/00-omarchy-update-guard.hook ]] ||
     fail "$target_arch: omarchy-dev lost its own commands or hooks"
+  grep -Fxq omarchy-security-functions "$scratch/omarchy-dev-$target_arch.depends" ||
+    fail "$target_arch: the omarchy-dev package does not require omarchy-security-functions"
+  grep -Fxq omarchy-security-functions "$scratch/omarchy-settings-dev-$target_arch.provides" ||
+    fail "$target_arch: the omarchy-settings-dev package does not provide omarchy-security-functions"
 
   overlap=$(comm -12 <(cd "$runtime" && find . ! -type d | sort) <(cd "$settings" && find . ! -type d | sort))
   [[ -z $overlap ]] || fail "$target_arch: shipped by both omarchy-dev and omarchy-settings-dev:"$'\n'"$overlap"

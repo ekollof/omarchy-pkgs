@@ -21,7 +21,7 @@ pkgdesc='Omarchy user defaults, /etc/skel content, fonts, plymouth theme, and su
 arch=('x86_64' 'aarch64')
 url='https://github.com/basecamp/omarchy'
 license=('MIT')
-provides=('omarchy-settings')
+provides=('omarchy-settings' 'omarchy-security-functions')
 conflicts=('omarchy-settings')
 
 # `/etc/default/limine` is intentionally NOT owned by this package. The ISO
