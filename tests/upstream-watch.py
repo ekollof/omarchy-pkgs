@@ -160,6 +160,24 @@ b2sums=('old' 'local-b2')
         output = w.replace_array(text, 'sha256sums', ['abc'])
         self.assertEqual(output, "sha256sums=('abc') # trailing\npackage() { :; }\n")
 
+    def test_redirect_probes_past_a_staged_rollout(self):
+        watch = {"redirect": "https://example.test/download",
+                 "pattern": r"tool-(?P<version>[0-9]+\.4\.[0-9]+)\.tar\.gz"}
+        rollout = "https://cdn.example.test/tool-274.3.4801.tar.gz"
+        stable = "https://cdn.example.test/tool-272.4.3798.tar.gz"
+        with patch.object(w, 'run', side_effect=[rollout, rollout, stable]) as probe:
+            releases = w.discover(watch, self.fetch)
+        self.assertEqual([r["pkgver"] for r in releases], ["272.4.3798"])
+        self.assertEqual(probe.call_count, 3)
+
+    def test_redirect_gives_up_after_its_probes(self):
+        watch = {"redirect": "https://example.test/download",
+                 "pattern": r"tool-(?P<version>[0-9]+\.4\.[0-9]+)\.tar\.gz"}
+        with patch.object(w, 'run', return_value="https://cdn.example.test/tool-274.3.4801.tar.gz") as probe, \
+                self.assertRaisesRegex(ValueError, 'no matching releases'):
+            w.discover(watch, self.fetch)
+        self.assertEqual(probe.call_count, w.REDIRECT_PROBES)
+
     def test_git_hash_matches_makepkg(self):
         repo = self.root / 'git'
         repo.mkdir()

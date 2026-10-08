@@ -26,6 +26,8 @@ VERSION = re.compile(r"[A-Za-z0-9][A-Za-z0-9._+]*\Z")
 SCALAR = re.compile(r"[A-Za-z0-9._+/-]+\Z")
 SUM = re.compile(r"(md5|sha1|sha224|sha256|sha384|sha512|b2)sums(_[a-z0-9_]+)?\Z")
 HASHES = {"b2": "blake2b"}
+# How many times a redirect watch probes before it calls the feed unmatched.
+REDIRECT_PROBES = 5
 
 
 def run(args, **kwargs):
@@ -286,8 +288,16 @@ def discover(watch, fetch):
         values.update({name: json_path(data, path) for name, path in watch.get("fields", {}).items()})
         results.append(candidate(watch, values))
     elif provider == "redirect":
-        final_url = run(["curl", "--proto", "=https", "--proto-redir", "=https", "-fsSLI", "--max-time", "60", "-o", "/dev/null", "-w", "%{url_effective}", feed], text=True)
-        results.extend(matches(watch, final_url))
+        # A download redirect can be a staged rollout: some requests land on a
+        # newer build the pattern deliberately rejects (Dropbox, 2026-10-04:
+        # 4 of 100 HEADs ended at 274.3.4801 instead of 272.4.3798), so one
+        # probe that misses is not an answer. Keep the first one that matches.
+        for _ in range(REDIRECT_PROBES):
+            final_url = run(["curl", "--proto", "=https", "--proto-redir", "=https", "-fsSLI", "--max-time", "60", "--retry", "2",
+                             "-o", "/dev/null", "-w", "%{url_effective}", feed], text=True)
+            results.extend(matches(watch, final_url))
+            if results:
+                break
     elif provider == "regex":
         text = fetch.text(feed)
         if watch.get("unescape_json"):
