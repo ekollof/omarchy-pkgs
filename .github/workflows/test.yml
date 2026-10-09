@@ -45,7 +45,7 @@ jobs:
           docker run --rm \
             -v "$PWD:/workspace:ro" \
             -w /workspace \
-            archlinux:base-devel bash -lc '
+            ghcr.io/archlinux/archlinux:base-devel bash -lc '
               set -euo pipefail
               pacman -Syu --noconfirm git jq python libarchive neovim tmux
               python tests/owe-package-restart.py
@@ -73,4 +73,8 @@ jobs:
               ./tests/superwhisper-bin-install.sh
               pacman -S --noconfirm --quiet rclone >/dev/null
               ./tests/publish-artifact.sh
+              shopt -s nullglob
+              for test in pkgbuilds/*/test.sh; do
+                bash "$test"
+              done
             '
