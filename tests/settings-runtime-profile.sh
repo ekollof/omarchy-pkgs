@@ -223,9 +223,10 @@ for unit in "${optional_units[@]}"; do
 done
 for recipe in omarchy-settings omarchy-settings-dev; do
   for architecture in x86_64 aarch64; do
-    package_as "$recipe" "$scratch/profile" "$architecture" services checkout
+    output=services-$recipe-$architecture
+    package_as "$recipe" "$scratch/profile" "$architecture" "$output" checkout
     for unit in "${optional_units[@]}"; do
-      cmp "$scratch/profile/default/systemd/user/$unit.service" "$scratch/services/usr/lib/systemd/user/$unit.service" ||
+      cmp "$scratch/profile/default/systemd/user/$unit.service" "$scratch/$output/usr/lib/systemd/user/$unit.service" ||
         fail "$recipe installs $unit unchanged for $architecture"
     done
   done
