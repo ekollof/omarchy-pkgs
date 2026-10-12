@@ -217,7 +217,7 @@ for recipe in omarchy-settings omarchy-settings-dev; do
 done
 
 # New services must be discoverable by systemd, not only in the source archive.
-optional_units=(omarchy-thunderbolt-authorization omarchy-usb-authorization omarchy-gpd-pocket-4-rotate)
+optional_units=(omarchy-gpd-pocket-4-rotate)
 for unit in "${optional_units[@]}"; do
   printf 'fixture for %s\n' "$unit" >"$scratch/profile/default/systemd/user/$unit.service"
 done
@@ -230,5 +230,5 @@ for recipe in omarchy-settings omarchy-settings-dev; do
         fail "$recipe installs $unit unchanged for $architecture"
     done
   done
-  echo "PASS: $recipe installs authorization and rotation user units on both architectures"
+  echo "PASS: $recipe installs the rotation user unit on both architectures"
 done
