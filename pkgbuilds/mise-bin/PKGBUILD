@@ -1,6 +1,6 @@
 # Maintainer: Jeff Dickey <releases@mise.jdx.dev>
 pkgname=mise-bin
-pkgver=2026.10.9
+pkgver=2026.10.20
 pkgrel=1
 pkgdesc="dev tools, env vars, task runner"
 arch=('x86_64' 'aarch64')
@@ -14,8 +14,8 @@ provides=('mise')
 conflicts=('mise')
 source_x86_64=("https://github.com/jdx/mise/releases/download/v${pkgver}/mise-v${pkgver}-linux-x64.tar.xz")
 source_aarch64=("https://github.com/jdx/mise/releases/download/v${pkgver}/mise-v${pkgver}-linux-arm64.tar.xz")
-sha256sums_x86_64=('7f21600bc06026463c83340c0d3b6c97612e4f6a6b31d738c7ed9fc100cdf659')
-sha256sums_aarch64=('6a3b91fa1238d5cbb2d3871389a2a0104a3290202439c6e4b4fa35fc5af98388')
+sha256sums_x86_64=('a26576be6c520eb9c31b5073c0657a75b493c8fb100959774ed97afe65c489c9')
+sha256sums_aarch64=('d5ae936ec464245122b2f7f8b3eaec7f0e5db3a8d34c6b5c20ce60549fd782a7')
 
 package() {
     install -Dm755 "${srcdir}/mise/bin/mise" "${pkgdir}/usr/bin/mise"

@@ -6,7 +6,7 @@
 # Adapted from omarchy-mac/omarchy-pkgs-aarch64 PR #25.
 
 pkgname=zed
-pkgver=1.23.3
+pkgver=1.25.3
 pkgrel=1
 pkgdesc='A high-performance, multiplayer code editor from the creators of Atom and Tree-sitter'
 arch=('aarch64')
@@ -36,7 +36,7 @@ conflicts=('zed-bin' 'zed-git' 'zed-preview-bin')
 # The vendor binaries are already stripped.
 options=('!strip')
 source_aarch64=("${pkgname}-${pkgver}-aarch64.tar.gz::https://github.com/zed-industries/zed/releases/download/v${pkgver}/zed-linux-aarch64.tar.gz")
-sha256sums_aarch64=('22431bbd15e1b18ee42979395b242d326178d4a5f6d6608ff5fb4520c535a1c9')
+sha256sums_aarch64=('776b3a5e39f1218eacabe1e9fa3859b7a6dda2653522d8a3992a9ab0f2184058')
 
 package() {
   cd 'zed.app'

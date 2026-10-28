@@ -35,6 +35,9 @@ jobs:
       - name: Test PR workflow approval
         run: node --test tests/pr-workflow-approval.cjs
 
+      - name: Test upstream sync reporting
+        run: node --test tests/sync-upstream-summary.cjs
+
       - name: Test builder images
         run: node --test tests/builder-image.cjs
 
@@ -52,27 +55,37 @@ jobs:
               python tests/oma-service-removal.py
               python tests/passwordless-package-lifecycle.py
               python tests/upstream-watch.py
+              runuser -u nobody -- python tests/aurora-edge/metadata.py
+              python tests/aurora-edge/review.py
+              python tests/aurora-edge/firmware.py
               bash tests/ipu7-install.sh
               bash tests/ipu7-headers.sh
               ./bin/sync-upstream self-test
+              ./tests/upstream-github-fetch.sh
               ./bin/sync-rebuilds --self-test
               ./bin/omarchy-pkgs self-test
               ./bin/omarchy-release self-test
               ./tests/neovim-remote-clipboard.sh
               python tests/neovim-clipboard-tmux.py
-              ./tests/partial-release.sh
               ./tests/published-build-plan.sh
               ./tests/settings-boot-config.sh
               ./tests/settings-runtime-profile.sh
               ./tests/passwordless-package-files.sh
               ./tests/pinned-sources.sh
+              ./tests/package-metadata.sh
+              ./tests/unpublish-plan.sh
+              ./tests/fast-ring-check.sh
               ./tests/controller.sh
               ./tests/artifact-helpers.sh
+              ./tests/build-matrix.sh
+              ./tests/mac-installer-dispatch.sh
               ./tests/limine-mkinitcpio-hook.sh
               ./tests/voxtype-bin-install.sh
+              ./tests/1password-polkit-owners.sh
               ./tests/superwhisper-bin-install.sh
               pacman -S --noconfirm --quiet rclone >/dev/null
               ./tests/publish-artifact.sh
+              ./tests/promote-channel.sh
               shopt -s nullglob
               for test in pkgbuilds/*/test.sh; do
                 bash "$test"
